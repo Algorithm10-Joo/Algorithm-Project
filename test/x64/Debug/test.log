@@ -1,46 +1,4 @@
-﻿  main.cpp
-D:\3_1\algorithm\project\test\test\main.cpp(237,82): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-D:\3_1\algorithm\project\test\test\main.cpp(237,48): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-D:\3_1\algorithm\project\test\test\main.cpp(260,100): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
-          with
-          [
-              T=float
-          ]
-D:\3_1\algorithm\project\test\test\main.cpp(260,66): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
-          with
-          [
-              T=float
-          ]
-D:\3_1\algorithm\project\test\test\main.cpp(264,108): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
-          with
-          [
-              T=float
-          ]
-D:\3_1\algorithm\project\test\test\main.cpp(264,70): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
-          with
-          [
-              T=float
-          ]
-D:\3_1\algorithm\project\test\test\main.cpp(399,28): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
-          with
-          [
-              T=float
-          ]
-D:\3_1\algorithm\project\test\test\main.cpp(398,28): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
-          with
-          [
-              T=float
-          ]
-D:\3_1\algorithm\project\test\test\main.cpp(422,32): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
-          with
-          [
-              T=float
-          ]
-D:\3_1\algorithm\project\test\test\main.cpp(421,32): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
-          with
-          [
-              T=float
-          ]
+﻿  LINK : D:\3_1\algorithm\project\test\x64\Debug\test.exe not found or not built by the last incremental link; performing full link
   test.vcxproj -> D:\3_1\algorithm\project\test\x64\Debug\test.exe
   'pwsh.exe'은(는) 내부 또는 외부 명령, 실행할 수 있는 프로그램, 또는
   배치 파일이 아닙니다.
