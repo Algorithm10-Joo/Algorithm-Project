@@ -146,10 +146,113 @@ std::vector<std::string> dijkstra(const std::vector<Node>& nodes, const std::str
     }
 
     std::vector<std::string> path;
+    if (distances[exitCode] == std::numeric_limits<double>::infinity()) {
+        return {}; // 경로가 없는 경우 빈 벡터 반환
+    }
     for (std::string at = exitCode; !at.empty(); at = previous[at]) {
         path.push_back(at);
     }
     std::reverse(path.begin(), path.end());
+    return path;
+}
+
+
+// bellman-ford 알고리즘을 사용하여 최단 경로를 찾는 함수
+std::vector<std::string> bellmanFord(const std::vector<Node>& nodes, const std::string& startCode, const std::string& exitCode, const std::unordered_set<std::string>& fireNodes) {
+    std::unordered_map<std::string, double> distances;
+    std::unordered_map<std::string, std::string> previous;
+
+    for (const auto& node : nodes) {
+        distances[node.code] = std::numeric_limits<double>::infinity();
+        previous[node.code] = "";
+    }
+    distances[startCode] = 0.0;
+
+    for (size_t i = 0; i < nodes.size() - 1; ++i) {     // (정점 개수 - 1)번 반복  
+        for (const auto& node : nodes) {
+            if (distances[node.code] == std::numeric_limits<double>::infinity()) continue;
+            for (const auto& neighbor : node.nearNodes) {
+                if (fireNodes.find(neighbor.first) != fireNodes.end()) continue; // 화재가 발생한 노드로는 이동하지 않음
+                // 지금까지의 neighbor까지의 거리보다 현재 node를 거친 neighbor까지의 거리가 더 작을 경우 업데이트 
+                if (distances[neighbor.first] > distances[node.code] + neighbor.second) {
+                    distances[neighbor.first] = distances[node.code] + neighbor.second;
+                    previous[neighbor.first] = node.code;
+                }
+            }
+        }
+    }
+
+    std::vector<std::string> path;
+    for (std::string at = exitCode; !at.empty(); at = previous[at]) {
+        path.push_back(at);
+    }
+    std::reverse(path.begin(), path.end());
+
+    // 출구로 가는 경로가 없는 경우
+    if (path.size() == 1 && path[0] == startCode) {
+        path.clear();
+    }
+
+    return path;
+}
+
+// 플로이드워셜 알고리즘을 사용하여 최단 경로를 찾는 함수
+std::vector<std::string> floydWarshall(const std::vector<Node>& nodes, const std::string& startCode, const std::string& exitCode, const std::unordered_set<std::string>& fireNodes) {
+    // 노드 코드와 인덱스를 매핑하는 맵 생성
+    std::unordered_map<std::string, int> nodeIndex;
+    int n = nodes.size();
+    for (int i = 0; i < n; ++i) {
+        nodeIndex[nodes[i].code] = i;
+    }
+
+    // 거리 행렬 초기화
+    std::vector<std::vector<double>> dist(n, std::vector<double>(n, std::numeric_limits<double>::infinity()));
+    std::vector<std::vector<int>> next(n, std::vector<int>(n, -1));
+
+    for (int i = 0; i < n; ++i) {
+        dist[i][i] = 0;
+        next[i][i] = i;
+    }
+
+    for (const auto& node : nodes) {
+        int u = nodeIndex[node.code];
+        for (const auto& neighbor : node.nearNodes) {
+            if (fireNodes.find(neighbor.first) == fireNodes.end()) { // 화재가 발생한 노드로의 간선 제외
+                int v = nodeIndex[neighbor.first];
+                dist[u][v] = neighbor.second;
+                next[u][v] = v;
+            }
+        }
+    }
+
+    // 플로이드-워셜 알고리즘 수행
+    for (int k = 0; k < n; ++k) {
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < n; ++j) {
+                if (dist[i][k] + dist[k][j] < dist[i][j]) {
+                    dist[i][j] = dist[i][k] + dist[k][j];
+                    next[i][j] = next[i][k];
+                }
+            }
+        }
+    }
+
+    // 경로 재구성
+    std::vector<std::string> path;
+    int u = nodeIndex[startCode];
+    int v = nodeIndex[exitCode];
+
+    if (next[u][v] == -1) {
+        // 경로가 존재하지 않음
+        return path;
+    }
+
+    while (u != v) {
+        path.push_back(nodes[u].code);
+        u = next[u][v];
+    }
+    path.push_back(nodes[v].code);
+
     return path;
 }
 
@@ -183,8 +286,25 @@ void resetPathEdgesColors(const std::vector<std::string>& path, std::unordered_m
     }
 }
 
+// 두 노드 사이의 가중치를 가져오는 함수
+double getWeight(const std::string& from, const std::string& to, const std::vector<Node>& nodes) {
+    for (const auto& node : nodes) {
+        if (node.code == from) {
+            for (const auto& neighbor : node.nearNodes) {
+                if (neighbor.first == to) {
+                    return neighbor.second;
+                }
+            }
+        }
+    }
+    return 1.0; // 기본 가중치
+}
+
 int main() {
     sf::RenderWindow window(sf::VideoMode(780, 580), "SFML Nodes Visualization");
+
+    // 게임 시작 시간 기록
+    auto gameStartTime = std::chrono::high_resolution_clock::now();
 
     // CSV 파일 경로 설정
     std::string csvFilePath = "nodes.csv";
@@ -197,13 +317,6 @@ int main() {
     }
 
     normalizeNodes(nodes);
-
- 
-    //std::srand(static_cast<unsigned int>(std::time(nullptr)));
-
-    // 플레이어와 출구의 임의 위치 설정
-    /*std::string playerNodeCode = nodes[std::rand() % nodes.size()].code;
-    std::string exitNodeCode = nodes[std::rand() % nodes.size()].code;*/
 
     // 플레이어와 출구의 위치를 고정
     auto playerNodeIt = std::min_element(nodes.begin(), nodes.end(), [](const Node& a, const Node& b) {
@@ -220,8 +333,27 @@ int main() {
     std::unordered_set<std::string> fireNodes;
     fireNodes.insert(nodes[std::rand() % nodes.size()].code);
 
-    // 다이익스트라 알고리즘으로 경로 찾기
-    std::vector<std::string> path = dijkstra(nodes, playerNodeCode, exitNodeCode, fireNodes);
+    std::vector<std::string> path;
+    switch (3) {
+    case 1:
+        // 다이익스트라 알고리즘으로 경로 찾기
+        path = dijkstra(nodes, playerNodeCode, exitNodeCode, fireNodes);
+        break;
+    case 2:
+        // bellman-Ford 알고리즘으로 경로 찾기
+        path = bellmanFord(nodes, playerNodeCode, exitNodeCode, fireNodes);
+        break;
+    case 3:
+        // 플로이드 워셜 알고리즘으로 경로 찾기
+        path = floydWarshall(nodes, playerNodeCode, exitNodeCode, fireNodes);
+        break;
+    }
+
+    // 경로가 없는 경우 처리
+    if (path.empty()) {
+        std::cout << "Initial path is blocked by fire. Exiting game." << std::endl;
+        return 1;
+    }
 
     // 최소 및 최대 가중치 찾기
     double minWeight = std::numeric_limits<double>::max();
@@ -306,21 +438,10 @@ int main() {
     double interpolation = 0.0;
     const double maxTravelTime = 5.0; // 간선 이동의 최대 시간
 
-    // 두 노드 사이의 가중치를 가져오는 함수
-    auto getWeight = [&](const std::string& from, const std::string& to) -> double {
-        for (const auto& node : nodes) {
-            if (node.code == from) {
-                for (const auto& neighbor : node.nearNodes) {
-                    if (neighbor.first == to) {
-                        return neighbor.second;
-                    }
-                }
-            }
-        }
-        return 1.0; // 기본 가중치
-    };
+    double totalWeight = 0.0; // 지나온 가중치의 합 계산
 
     std::vector<Fire> fireAnimations;
+    std::unordered_set<std::string> passedNodes;
 
     while (window.isOpen()) {
         sf::Event event;
@@ -354,45 +475,66 @@ int main() {
                 fireNodes.insert(newFireNode);
             }
 
-            // 경로 재계산 및 색상 변경
-            std::vector<std::string> newPath = dijkstra(nodes, path[currentPathIndex], exitNodeCode, fireNodes);
-            if (newPath.size() == 1 && newPath[0] == path[currentPathIndex]) {
-                std::cout << "Game Over: All paths to the exit are blocked by fire." << std::endl;
-                window.close();
-            }
-            else {
-                resetPathEdgesColors(path, nodeMap, pathEdgesShapes, sf::Color::White); // 기존 경로 색상 되돌리기
-                path = newPath;
-                pathEdgesShapes.clear();
-                for (size_t i = 1; i < path.size(); ++i) {
-                    sf::VertexArray line(sf::Lines, 2);
-                    const auto& startNode = nodeMap[path[i - 1]];
-                    const auto& endNode = nodeMap[path[i]];
-
-                    line[0].position = startNode.getPosition();
-                    line[0].color = sf::Color::Red;
-                    line[1].position = endNode.getPosition();
-                    line[1].color = sf::Color::Red;
-
-                    pathEdgesShapes.push_back(line);
+            // 화재가 현재 경로를 차단하는지 확인
+            bool pathBlocked = false;
+            for (const auto& node : path) {
+                if (fireNodes.find(node) != fireNodes.end() && passedNodes.find(node) == passedNodes.end()) {
+                    pathBlocked = true;
+                    break;
                 }
-                currentPathIndex = 0;
-                interpolation = 0.0;
+            }
+
+            // 경로 재계산
+            if (pathBlocked) {
+                std::vector<std::string> newPath = dijkstra(nodes, path[currentPathIndex], exitNodeCode, fireNodes);
+                if (newPath.empty()) {
+                    std::cout << "Game Over: All paths to the exit are blocked by fire." << std::endl;
+                    window.close();
+                }
+                else {
+                    resetPathEdgesColors(path, nodeMap, pathEdgesShapes, sf::Color::White); // 기존 경로 색상 되돌리기
+                    path = newPath;
+                    pathEdgesShapes.clear();
+                    for (size_t i = 1; i < path.size(); ++i) {
+                        sf::VertexArray line(sf::Lines, 2);
+                        const auto& startNode = nodeMap[path[i - 1]];
+                        const auto& endNode = nodeMap[path[i]];
+
+                        line[0].position = startNode.getPosition();
+                        line[0].color = sf::Color::Red;
+                        line[1].position = endNode.getPosition();
+                        line[1].color = sf::Color::Red;
+
+                        pathEdgesShapes.push_back(line);
+                    }
+                    currentPathIndex = 0;
+                    interpolation = 0.0;
+                }
             }
         }
 
         // 이동 시간 계산
         sf::Time elapsed = clock.restart();
-        double travelTime = getWeight(path[currentPathIndex], path[currentPathIndex + 1]);
+        double travelTime = getWeight(path[currentPathIndex], path[currentPathIndex + 1], nodes);
         double normalizedTime = normalizeWeight(travelTime, minWeight, maxWeight);
         interpolation += elapsed.asSeconds() / normalizedTime;
 
         if (interpolation >= 1.0) {
             interpolation = 0.0;
+            totalWeight += travelTime; // 이동 완료된 경로의 가중치를 합산
+            passedNodes.insert(path[currentPathIndex]); // 지나간 노드를 추가
             currentPathIndex++;
             if (currentPathIndex + 1 >= path.size()) {
                 playerShape.setPosition(nodeMap[exitNodeCode].getPosition());
                 std::cout << "Player reached the exit!" << std::endl;
+
+                // 경과 시간 계산
+                auto gameEndTime = std::chrono::high_resolution_clock::now();
+                std::chrono::duration<double> gameDuration = gameEndTime - gameStartTime;
+
+                std::cout << "Total time taken: " << gameDuration.count() << " seconds" << std::endl;
+                std::cout << "Total weight of the path: " << totalWeight << std::endl;
+
                 window.close();
             }
             else {
@@ -417,7 +559,7 @@ int main() {
 
         // 화재 애니메이션 업데이트
         for (auto& fire : fireAnimations) {
-            double fireTravelTime = getWeight(fire.startNode, fire.endNode) * 0.8;
+            double fireTravelTime = getWeight(fire.startNode, fire.endNode, nodes) * 0.8;
             double fireNormalizedTime = normalizeWeight(fireTravelTime, minWeight, maxWeight);
             fire.interpolation += elapsed.asSeconds() / fireNormalizedTime;
 

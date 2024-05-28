@@ -1,42 +1,43 @@
 ﻿  main.cpp
-D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(250,82): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(250,48): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(273,100): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(203,11): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(382,82): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(382,48): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(405,100): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
           with
           [
               T=float
           ]
-D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(273,66): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(405,66): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
           with
           [
               T=float
           ]
-D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(277,108): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(409,108): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
           with
           [
               T=float
           ]
-D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(277,70): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(409,70): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
           with
           [
               T=float
           ]
-D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(412,28): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(554,28): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
           with
           [
               T=float
           ]
-D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(411,28): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(553,28): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
           with
           [
               T=float
           ]
-D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(435,32): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(577,32): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
           with
           [
               T=float
           ]
-D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(434,32): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(576,32): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
           with
           [
               T=float
