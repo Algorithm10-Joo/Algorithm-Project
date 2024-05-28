@@ -250,7 +250,7 @@ int main() {
         for (const auto& edge : node.nearNodes) {
             auto it = std::find_if(nodes.begin(), nodes.end(), [&edge](const Node& n) {
                 return n.code == edge.first;
-            });
+                });
             if (it == nodes.end()) {
                 std::cerr << "Error: Edge points to a non-existing node with ID " << edge.first << std::endl;
                 continue;
@@ -305,7 +305,7 @@ int main() {
             }
         }
         return 1.0; // 기본 가중치
-    };
+        };
 
     std::vector<Fire> fireAnimations;
 
