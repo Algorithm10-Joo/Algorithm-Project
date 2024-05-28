@@ -1,4 +1,46 @@
-﻿  LINK : D:\3_1\algorithm\project\test\x64\Debug\test.exe not found or not built by the last incremental link; performing full link
-  test.vcxproj -> D:\3_1\algorithm\project\test\x64\Debug\test.exe
+﻿  main.cpp
+D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(250,82): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(250,48): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(273,100): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(273,66): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(277,108): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(277,70): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(412,28): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(411,28): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(435,32): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(434,32): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  test.vcxproj -> D:\3_1\algorithm\project\github_test\Algorithm-Project\x64\Debug\test.exe
   'pwsh.exe'은(는) 내부 또는 외부 명령, 실행할 수 있는 프로그램, 또는
   배치 파일이 아닙니다.

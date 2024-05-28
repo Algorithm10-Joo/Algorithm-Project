@@ -198,10 +198,23 @@ int main() {
 
     normalizeNodes(nodes);
 
+ 
+    //std::srand(static_cast<unsigned int>(std::time(nullptr)));
+
     // 플레이어와 출구의 임의 위치 설정
-    std::srand(static_cast<unsigned int>(std::time(nullptr)));
-    std::string playerNodeCode = nodes[std::rand() % nodes.size()].code;
-    std::string exitNodeCode = nodes[std::rand() % nodes.size()].code;
+    /*std::string playerNodeCode = nodes[std::rand() % nodes.size()].code;
+    std::string exitNodeCode = nodes[std::rand() % nodes.size()].code;*/
+
+    // 플레이어와 출구의 위치를 고정
+    auto playerNodeIt = std::min_element(nodes.begin(), nodes.end(), [](const Node& a, const Node& b) {
+        return a.longitude < b.longitude;
+    });
+    auto exitNodeIt = std::max_element(nodes.begin(), nodes.end(), [](const Node& a, const Node& b) {
+        return a.longitude < b.longitude;
+    });
+
+    std::string playerNodeCode = playerNodeIt->code;
+    std::string exitNodeCode = exitNodeIt->code;
 
     // 화재 발생 초기화
     std::unordered_set<std::string> fireNodes;
