@@ -379,6 +379,33 @@ double getWeight(const std::string& from, const std::string& to, const std::vect
     return 1.0; // 기본 가중치
 }
 
+// 음수 가중치 추가 함수
+void addNegativeWeights(std::vector<Node>& nodes) {
+    for (auto& node : nodes) {
+        for (auto& neighbor : node.nearNodes) {
+            neighbor.second = -std::abs(neighbor.second); // 음수로 설정
+        }
+    }
+}
+
+// 고리(사이클) 추가 함수
+void addCycle(std::vector<Node>& nodes, const std::string& startNodeCode, const std::string& endNodeCode) {
+    for (auto& node : nodes) {
+        if (node.code == startNodeCode) {
+            node.nearNodes.push_back({ endNodeCode, 1.0 }); // 간단한 가중치 설정
+        }
+    }
+}
+
+// 단절 그래프 생성 함수
+void createDisconnectedGraph(std::vector<Node>& nodes) {
+    for (size_t i = 0; i < nodes.size(); ++i) {
+        if (i % 2 == 0) {
+            nodes[i].nearNodes.clear(); // 일부 노드의 이웃 노드를 제거
+        }
+    }
+}
+
 int main() {
     sf::RenderWindow window(sf::VideoMode(780, 580), "SFML Nodes Visualization");
 
@@ -396,6 +423,21 @@ int main() {
     }
 
     normalizeNodes(nodes);
+
+    // 음수 가중치 테스트
+    addNegativeWeights(nodes);
+    std::vector<std::string> pathWithNegativeWeights = dijkstra(nodes, "start", "end", {});
+    std::cout << "Path with negative weights: " << (pathWithNegativeWeights.empty() ? "No path found" : "Path found") << std::endl;
+
+    // 고리(사이클) 추가 테스트
+    addCycle(nodes, "A", "B");
+    std::vector<std::string> pathWithCycle = dijkstra(nodes, "A", "B", {});
+    std::cout << "Path with cycle: " << (pathWithCycle.empty() ? "No path found" : "Path found") << std::endl;
+
+    // 단절 그래프 테스트
+    createDisconnectedGraph(nodes);
+    std::vector<std::string> pathInDisconnectedGraph = dijkstra(nodes, "start", "end", {});
+    std::cout << "Path in disconnected graph: " << (pathInDisconnectedGraph.empty() ? "No path found" : "Path found") << std::endl;
 
     // 플레이어와 출구의 위치를 고정
     auto playerNodeIt = std::min_element(nodes.begin(), nodes.end(), [](const Node& a, const Node& b) {
