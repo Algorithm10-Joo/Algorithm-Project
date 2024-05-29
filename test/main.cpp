@@ -13,14 +13,14 @@
 #include <ctime>
 #include <chrono>
 
-// Node Å¬·¡½º Á¤ÀÇ
+// Node í´ë˜ìŠ¤ ì •ì˜
 class Node {
 public:
-    std::string code;  // ³ëµå ÄÚµå
-    std::string centralNode;  // Áß¾Ó ³ëµå ¿©ºÎ (Áß¾Ó ³ëµåÀÏ °æ¿ì "O")
-    double latitude;  // À§µµ
-    double longitude;  // °æµµ
-    std::vector<std::pair<std::string, double>> nearNodes;  // ÀÎÁ¢ ³ëµå ¸ñ·Ï ¹× °¡ÁßÄ¡
+    std::string code;  // ë…¸ë“œ ì½”ë“œ
+    std::string centralNode;  // ì¤‘ì•™ ë…¸ë“œ ì—¬ë¶€ (ì¤‘ì•™ ë…¸ë“œì¼ ê²½ìš° "O")
+    double latitude;  // ìœ„ë„
+    double longitude;  // ê²½ë„
+    std::vector<std::pair<std::string, double>> nearNodes;  // ì¸ì ‘ ë…¸ë“œ ëª©ë¡ ë° ê°€ì¤‘ì¹˜
 
     Node(std::string c, std::string cn, double lat, double lon,
         std::vector<std::pair<std::string, double>> nn)
@@ -39,7 +39,7 @@ public:
     }
 };
 
-// ¹®ÀÚ¿­À» ±¸ºĞÀÚ(delimiter)·Î ºĞÇÒÇÏ´Â ÇÔ¼ö
+// ë¬¸ìì—´ì„ êµ¬ë¶„ì(delimiter)ë¡œ ë¶„í• í•˜ëŠ” í•¨ìˆ˜
 std::vector<std::string> split(const std::string& s, char delimiter) {
     std::vector<std::string> tokens;
     std::string token;
@@ -50,17 +50,17 @@ std::vector<std::string> split(const std::string& s, char delimiter) {
     return tokens;
 }
 
-// CSV ÆÄÀÏÀ» ÀĞ¾î Node °´Ã¼µéÀÇ º¤ÅÍ¸¦ ¹İÈ¯ÇÏ´Â ÇÔ¼ö
+// CSV íŒŒì¼ì„ ì½ì–´ Node ê°ì²´ë“¤ì˜ ë²¡í„°ë¥¼ ë°˜í™˜í•˜ëŠ” í•¨ìˆ˜
 std::vector<Node> readCSV(const std::string& filename) {
     std::ifstream file(filename);
     std::string line;
 
     std::vector<Node> nodes;
 
-    // Çì´õ ½ºÅµ
+    // í—¤ë” ìŠ¤í‚µ
     std::getline(file, line);
 
-    // µ¥ÀÌÅÍ ÀĞ±â
+    // ë°ì´í„° ì½ê¸°
     while (std::getline(file, line)) {
         auto tokens = split(line, ',');
 
@@ -83,7 +83,7 @@ std::vector<Node> readCSV(const std::string& filename) {
     return nodes;
 }
 
-// ³ëµåÀÇ ÁÂÇ¥¸¦ Á¤±ÔÈ­ÇÏ´Â ÇÔ¼ö
+// ë…¸ë“œì˜ ì¢Œí‘œë¥¼ ì •ê·œí™”í•˜ëŠ” í•¨ìˆ˜
 void normalizeNodes(std::vector<Node>& nodes) {
     double minLat = std::numeric_limits<double>::max();
     double maxLat = std::numeric_limits<double>::lowest();
@@ -103,7 +103,7 @@ void normalizeNodes(std::vector<Node>& nodes) {
     }
 }
 
-// ´ÙÀÍ½ºÆ®¶ó ¾Ë°í¸®ÁòÀ» »ç¿ëÇÏ¿© ÃÖ´Ü °æ·Î¸¦ Ã£´Â ÇÔ¼ö
+// ë‹¤ìµìŠ¤íŠ¸ë¼ ì•Œê³ ë¦¬ì¦˜ì„ ì‚¬ìš©í•˜ì—¬ ìµœë‹¨ ê²½ë¡œë¥¼ ì°¾ëŠ” í•¨ìˆ˜
 std::vector<std::string> dijkstra(const std::vector<Node>& nodes, const std::string& startCode, const std::string& exitCode, const std::unordered_set<std::string>& fireNodes) {
     std::unordered_map<std::string, double> distances;
     std::unordered_map<std::string, std::string> previous;
@@ -134,7 +134,7 @@ std::vector<std::string> dijkstra(const std::vector<Node>& nodes, const std::str
 
         for (const auto& neighbor : currentNode->nearNodes) {
             if (fireNodes.find(neighbor.first) != fireNodes.end()) {
-                continue; // È­Àç°¡ ¹ß»ıÇÑ ³ëµå·Î ÀÌµ¿ÇÏÁö ¾ÊÀ½
+                continue; // í™”ì¬ê°€ ë°œìƒí•œ ë…¸ë“œë¡œ ì´ë™í•˜ì§€ ì•ŠìŒ
             }
             double alt = distances[current] + neighbor.second;
             if (alt < distances[neighbor.first]) {
@@ -147,7 +147,7 @@ std::vector<std::string> dijkstra(const std::vector<Node>& nodes, const std::str
 
     std::vector<std::string> path;
     if (distances[exitCode] == std::numeric_limits<double>::infinity()) {
-        return {}; // °æ·Î°¡ ¾ø´Â °æ¿ì ºó º¤ÅÍ ¹İÈ¯
+        return {}; // ê²½ë¡œê°€ ì—†ëŠ” ê²½ìš° ë¹ˆ ë²¡í„° ë°˜í™˜
     }
     for (std::string at = exitCode; !at.empty(); at = previous[at]) {
         path.push_back(at);
@@ -157,7 +157,7 @@ std::vector<std::string> dijkstra(const std::vector<Node>& nodes, const std::str
 }
 
 
-// bellman-ford ¾Ë°í¸®ÁòÀ» »ç¿ëÇÏ¿© ÃÖ´Ü °æ·Î¸¦ Ã£´Â ÇÔ¼ö
+// bellman-ford ì•Œê³ ë¦¬ì¦˜ì„ ì‚¬ìš©í•˜ì—¬ ìµœë‹¨ ê²½ë¡œë¥¼ ì°¾ëŠ” í•¨ìˆ˜
 std::vector<std::string> bellmanFord(const std::vector<Node>& nodes, const std::string& startCode, const std::string& exitCode, const std::unordered_set<std::string>& fireNodes) {
     std::unordered_map<std::string, double> distances;
     std::unordered_map<std::string, std::string> previous;
@@ -168,12 +168,12 @@ std::vector<std::string> bellmanFord(const std::vector<Node>& nodes, const std::
     }
     distances[startCode] = 0.0;
 
-    for (size_t i = 0; i < nodes.size() - 1; ++i) {     // (Á¤Á¡ °³¼ö - 1)¹ø ¹İº¹  
+    for (size_t i = 0; i < nodes.size() - 1; ++i) {     // (ì •ì  ê°œìˆ˜ - 1)ë²ˆ ë°˜ë³µ
         for (const auto& node : nodes) {
             if (distances[node.code] == std::numeric_limits<double>::infinity()) continue;
             for (const auto& neighbor : node.nearNodes) {
-                if (fireNodes.find(neighbor.first) != fireNodes.end()) continue; // È­Àç°¡ ¹ß»ıÇÑ ³ëµå·Î´Â ÀÌµ¿ÇÏÁö ¾ÊÀ½
-                // Áö±İ±îÁöÀÇ neighbor±îÁöÀÇ °Å¸®º¸´Ù ÇöÀç node¸¦ °ÅÄ£ neighbor±îÁöÀÇ °Å¸®°¡ ´õ ÀÛÀ» °æ¿ì ¾÷µ¥ÀÌÆ® 
+                if (fireNodes.find(neighbor.first) != fireNodes.end()) continue; // í™”ì¬ê°€ ë°œìƒí•œ ë…¸ë“œë¡œëŠ” ì´ë™í•˜ì§€ ì•ŠìŒ
+                // ì§€ê¸ˆê¹Œì§€ì˜ neighborê¹Œì§€ì˜ ê±°ë¦¬ë³´ë‹¤ í˜„ì¬ nodeë¥¼ ê±°ì¹œ neighborê¹Œì§€ì˜ ê±°ë¦¬ê°€ ë” ì‘ì„ ê²½ìš° ì—…ë°ì´íŠ¸
                 if (distances[neighbor.first] > distances[node.code] + neighbor.second) {
                     distances[neighbor.first] = distances[node.code] + neighbor.second;
                     previous[neighbor.first] = node.code;
@@ -188,7 +188,7 @@ std::vector<std::string> bellmanFord(const std::vector<Node>& nodes, const std::
     }
     std::reverse(path.begin(), path.end());
 
-    // Ãâ±¸·Î °¡´Â °æ·Î°¡ ¾ø´Â °æ¿ì
+    // ì¶œêµ¬ë¡œ ê°€ëŠ” ê²½ë¡œê°€ ì—†ëŠ” ê²½ìš°
     if (path.size() == 1 && path[0] == startCode) {
         path.clear();
     }
@@ -196,16 +196,16 @@ std::vector<std::string> bellmanFord(const std::vector<Node>& nodes, const std::
     return path;
 }
 
-// ÇÃ·ÎÀÌµå¿ö¼È ¾Ë°í¸®ÁòÀ» »ç¿ëÇÏ¿© ÃÖ´Ü °æ·Î¸¦ Ã£´Â ÇÔ¼ö
+// í”Œë¡œì´ë“œì›Œì…œ ì•Œê³ ë¦¬ì¦˜ì„ ì‚¬ìš©í•˜ì—¬ ìµœë‹¨ ê²½ë¡œë¥¼ ì°¾ëŠ” í•¨ìˆ˜
 std::vector<std::string> floydWarshall(const std::vector<Node>& nodes, const std::string& startCode, const std::string& exitCode, const std::unordered_set<std::string>& fireNodes) {
-    // ³ëµå ÄÚµå¿Í ÀÎµ¦½º¸¦ ¸ÅÇÎÇÏ´Â ¸Ê »ı¼º
+    // ë…¸ë“œ ì½”ë“œì™€ ì¸ë±ìŠ¤ë¥¼ ë§¤í•‘í•˜ëŠ” ë§µ ìƒì„±
     std::unordered_map<std::string, int> nodeIndex;
     int n = nodes.size();
     for (int i = 0; i < n; ++i) {
         nodeIndex[nodes[i].code] = i;
     }
 
-    // °Å¸® Çà·Ä ÃÊ±âÈ­
+    // ê±°ë¦¬ í–‰ë ¬ ì´ˆê¸°í™”
     std::vector<std::vector<double>> dist(n, std::vector<double>(n, std::numeric_limits<double>::infinity()));
     std::vector<std::vector<int>> next(n, std::vector<int>(n, -1));
 
@@ -217,7 +217,7 @@ std::vector<std::string> floydWarshall(const std::vector<Node>& nodes, const std
     for (const auto& node : nodes) {
         int u = nodeIndex[node.code];
         for (const auto& neighbor : node.nearNodes) {
-            if (fireNodes.find(neighbor.first) == fireNodes.end()) { // È­Àç°¡ ¹ß»ıÇÑ ³ëµå·ÎÀÇ °£¼± Á¦¿Ü
+            if (fireNodes.find(neighbor.first) == fireNodes.end()) { // í™”ì¬ê°€ ë°œìƒí•œ ë…¸ë“œë¡œì˜ ê°„ì„  ì œì™¸
                 int v = nodeIndex[neighbor.first];
                 dist[u][v] = neighbor.second;
                 next[u][v] = v;
@@ -225,7 +225,7 @@ std::vector<std::string> floydWarshall(const std::vector<Node>& nodes, const std
         }
     }
 
-    // ÇÃ·ÎÀÌµå-¿ö¼È ¾Ë°í¸®Áò ¼öÇà
+    // í”Œë¡œì´ë“œ-ì›Œì…œ ì•Œê³ ë¦¬ì¦˜ ìˆ˜í–‰
     for (int k = 0; k < n; ++k) {
         for (int i = 0; i < n; ++i) {
             for (int j = 0; j < n; ++j) {
@@ -237,13 +237,14 @@ std::vector<std::string> floydWarshall(const std::vector<Node>& nodes, const std
         }
     }
 
-    // °æ·Î Àç±¸¼º
+
+    // ê²½ë¡œ ì¬êµ¬ì„±
     std::vector<std::string> path;
     int u = nodeIndex[startCode];
     int v = nodeIndex[exitCode];
 
     if (next[u][v] == -1) {
-        // °æ·Î°¡ Á¸ÀçÇÏÁö ¾ÊÀ½
+        // ê²½ë¡œê°€ ì¡´ì¬í•˜ì§€ ì•ŠìŒ
         return path;
     }
 
@@ -256,12 +257,90 @@ std::vector<std::string> floydWarshall(const std::vector<Node>& nodes, const std
     return path;
 }
 
-// °¡ÁßÄ¡¸¦ Á¤±ÔÈ­ÇÏ´Â ÇÔ¼ö
+// A* ì•Œê³ ë¦¬ì¦˜ì— ì‚¬ìš©í•  íœ´ë¦¬ìŠ¤í‹± í•¨
+// ë‘ ë…¸ë“œ ê°„ì˜ ìœ í´ë¦¬ë“œ ê±°ë¦¬ë¥¼ ê³„ì‚°í•˜ì—¬ ë°˜í™˜
+double heuristic(const Node& a, const Node& b) {
+    return std::sqrt((a.latitude - b.latitude) * (a.latitude - b.latitude) +
+        (a.longitude - b.longitude) * (a.longitude - b.longitude));
+}
+
+//A* ì•Œê³ ë¦¬ì¦˜ì„ ì´ìš©í•˜ì—¬ ìµœë‹¨ ê²½ë¡œë¥¼ ì°¾ëŠ” í•¨ìˆ˜
+std::vector<std::string> astar(const std::vector<Node>& nodes, const std::string& startCode, const std::string& exitCode, const std::unordered_set<std::string>& fireNodes) {
+    std::unordered_map<std::string, double> gScore, /*ì‹œì‘ ë…¸ë“œì—ì„œ íŠ¹ì • ë…¸ë“œê¹Œì§€ì˜ ì‹¤ì œ ë¹„ìš©*/ fScore; // ì‹œì‘ ë…¸ë“œì—ì„œ ëª©í‘œ ë…¸ë“œê¹Œì§€ì˜ ì˜ˆìƒ ë¹„ìš© (gScore + íœ´ë¦¬ìŠ¤í‹±)
+    std::unordered_map<std::string, std::string> cameFrom; // ê° ë…¸ë“œì˜ ì´ì „ ë…¸ë“œë¥¼ ì €ì¥í•˜ì—¬ ê²½ë¡œë¥¼ ì¬êµ¬ì„±
+    // ìš°ì„ ìˆœìœ„ íë¥¼ ì‚¬ìš©í•˜ì—¬ fScoreê°€ ë‚®ì€ ë…¸ë“œë¥¼ ìš°ì„  íƒìƒ‰
+    auto cmp = [&fScore](const std::string& left, const std::string& right) { return fScore[left] > fScore[right]; };
+    std::priority_queue<std::string, std::vector<std::string>, decltype(cmp)> openSet(cmp);
+
+    //ì´ˆê¸°í™”: ëª¨ë“  ë…¸ë“œì˜ gScoreì™€ fScoreë¥¼ ë¬´í•œëŒ€ë¡œ ì„¤ì •
+    for (const auto& node : nodes) {
+        gScore[node.code] = std::numeric_limits<double>::infinity();
+        fScore[node.code] = std::numeric_limits<double>::infinity();
+    }
+    gScore[startCode] = 0.0; // ì‹œì‘ ë…¸ë“œì˜ gScoreëŠ” 0
+    fScore[startCode] = heuristic(nodes[0], nodes[0]); // ì´ˆê¸° íœ´ë¦¬ìŠ¤í‹± ê°’ ì„¤ì • (ìê¸° ìì‹ ê³¼ì˜ ê±°ë¦¬ì´ë¯€ë¡œ 0)
+
+    openSet.push(startCode); // ì‹œì‘ ë…¸ë“œë¥¼ ìš°ì„ ìˆœìœ„ íì— ì¶”ê°€
+
+    while (!openSet.empty()) {
+        std::string current = openSet.top(); // fScoreê°€ ê°€ì¥ ë‚®ì€ ë…¸ë“œë¥¼ ì„ íƒ
+        openSet.pop();
+
+        if (current == exitCode) { // ëª©í‘œ ë…¸ë“œì— ë„ë‹¬í•œ ê²½ìš° ê²½ë¡œë¥¼ ì¬êµ¬ì„±í•˜ì—¬ ë°˜í™˜
+            std::vector<std::string> path;
+            for (std::string at = exitCode; !at.empty(); at = cameFrom[at]) {
+                path.push_back(at);
+            }
+            std::reverse(path.begin(), path.end()); // ê²½ë¡œë¥¼ ì—­ìˆœìœ¼ë¡œ ì €ì¥í–ˆìœ¼ë¯€ë¡œ ìˆœì„œë¥¼ ë°˜ëŒ€ë¡œ ë³€ê²½
+            return path;
+        }
+
+        const Node* currentNode = nullptr; // í˜„ì¬ ë…¸ë“œë¥¼ ì°¾ìŒ
+        for (const auto& node : nodes) {
+            if (node.code == current) {
+                currentNode = &node;
+                break;
+            }
+        }
+        if (!currentNode) continue;
+
+        //í˜„ì¬ ë…¸ë“œì˜ ëª¨ë“  ì¸ì ‘ ë…¸ë“œë¥¼ íƒìƒ‰
+        for (const auto& neighbor : currentNode->nearNodes) {
+            if (fireNodes.find(neighbor.first) != fireNodes.end()) {
+                continue; //í™”ì¬ê°€ ë°œìƒí•œ ë…¸ë“œëŠ” íƒìƒ‰í•˜ì§€ ì•ŠìŒ
+            }
+            double tentative_gScore = gScore[current] + neighbor.second; // ìƒˆë¡œìš´ gScore ê³„ì‚°
+            if (tentative_gScore < gScore[neighbor.first]) { // ë” ë‚®ì€ gScoreë¥¼ ë°œê²¬í•œ ê²½ìš° ê°±ì‹ 
+                cameFrom[neighbor.first] = current; // ê²½ë¡œë¥¼ ì¬êµ¬ì„±í•˜ê¸° ìœ„í•´ ì´ì „ ë…¸ë“œ ì €ì¥
+                gScore[neighbor.first] = tentative_gScore;
+
+                const Node* neighborNode = nullptr;
+                //ì¸ì ‘ ë…¸ë“œë¥¼ ì°¾ìŒ
+                for (const auto& node : nodes) {
+                    if (node.code == neighbor.first) {
+                        neighborNode = &node;
+                        break;
+                    }
+                }
+                if (neighborNode) { // fScore ê°±ì‹ : gScore + íœ´ë¦¬ìŠ¤í‹±
+                    fScore[neighbor.first] = gScore[neighbor.first] + heuristic(*neighborNode, *currentNode);
+                    openSet.push(neighbor.first); // ì¸ì ‘ ë…¸ë“œë¥¼ ìš°ì„ ìˆœìœ„ íì— ì¶”ê°€ã…
+                }
+            }
+        }
+    }
+
+    return {}; //ëª©í‘œ ë…¸ë“œì— ë„ë‹¬í•  ìˆ˜ ì—†ëŠ” ê²½ìš° ë¹ˆ ë²¡í„° ë°˜í™˜
+
+
+}
+
+// ê°€ì¤‘ì¹˜ë¥¼ ì •ê·œí™”í•˜ëŠ” í•¨ìˆ˜
 double normalizeWeight(double weight, double minWeight, double maxWeight) {
     return 0.5 + 4.5 * (weight - minWeight) / (maxWeight - minWeight);
 }
 
-// È­Àç ¾Ö´Ï¸ŞÀÌ¼ÇÀ» À§ÇÑ ±¸Á¶Ã¼
+// í™”ì¬ ì• ë‹ˆë©”ì´ì…˜ì„ ìœ„í•œ êµ¬ì¡°ì²´
 struct Fire {
     sf::CircleShape shape;
     std::string startNode;
@@ -271,7 +350,7 @@ struct Fire {
         : shape(shape), startNode(startNode), endNode(endNode), interpolation(0.0) {}
 };
 
-// °æ·Î °£¼± »ö»óÀ» ¸®¼ÂÇÏ´Â ÇÔ¼ö
+// ê²½ë¡œ ê°„ì„  ìƒ‰ìƒì„ ë¦¬ì…‹í•˜ëŠ” í•¨ìˆ˜
 void resetPathEdgesColors(const std::vector<std::string>& path, std::unordered_map<std::string, sf::CircleShape>& nodeMap, std::vector<sf::VertexArray>& pathEdgesShapes, const sf::Color& color) {
     for (size_t i = 1; i < path.size(); ++i) {
         const auto& startNode = nodeMap[path[i - 1]];
@@ -286,7 +365,7 @@ void resetPathEdgesColors(const std::vector<std::string>& path, std::unordered_m
     }
 }
 
-// µÎ ³ëµå »çÀÌÀÇ °¡ÁßÄ¡¸¦ °¡Á®¿À´Â ÇÔ¼ö
+// ë‘ ë…¸ë“œ ì‚¬ì´ì˜ ê°€ì¤‘ì¹˜ë¥¼ ê°€ì ¸ì˜¤ëŠ” í•¨ìˆ˜
 double getWeight(const std::string& from, const std::string& to, const std::vector<Node>& nodes) {
     for (const auto& node : nodes) {
         if (node.code == from) {
@@ -297,28 +376,28 @@ double getWeight(const std::string& from, const std::string& to, const std::vect
             }
         }
     }
-    return 1.0; // ±âº» °¡ÁßÄ¡
+    return 1.0; // ê¸°ë³¸ ê°€ì¤‘ì¹˜
 }
 
 int main() {
     sf::RenderWindow window(sf::VideoMode(780, 580), "SFML Nodes Visualization");
 
-    // °ÔÀÓ ½ÃÀÛ ½Ã°£ ±â·Ï
+    // ê²Œì„ ì‹œì‘ ì‹œê°„ ê¸°ë¡
     auto gameStartTime = std::chrono::high_resolution_clock::now();
 
-    // CSV ÆÄÀÏ °æ·Î ¼³Á¤
+    // CSV íŒŒì¼ ê²½ë¡œ ì„¤ì •
     std::string csvFilePath = "nodes.csv";
 
-    // CSV ÆÄÀÏ ÀĞ±â ¹× Á¤±ÔÈ­
+    // CSV íŒŒì¼ ì½ê¸° ë° ì •ê·œí™”
     std::vector<Node> nodes = readCSV(csvFilePath);
     if (nodes.empty()) {
         std::cerr << "Error: No nodes were loaded from the CSV file." << std::endl;
-        return 1; // ¿À·ù ÄÚµå ¹İÈ¯
+        return 1; // ì˜¤ë¥˜ ì½”ë“œ ë°˜í™˜
     }
 
     normalizeNodes(nodes);
 
-    // ÇÃ·¹ÀÌ¾î¿Í Ãâ±¸ÀÇ À§Ä¡¸¦ °íÁ¤
+    // í”Œë ˆì´ì–´ì™€ ì¶œêµ¬ì˜ ìœ„ì¹˜ë¥¼ ê³ ì •
     auto playerNodeIt = std::min_element(nodes.begin(), nodes.end(), [](const Node& a, const Node& b) {
         return a.longitude < b.longitude;
     });
@@ -329,33 +408,37 @@ int main() {
     std::string playerNodeCode = playerNodeIt->code;
     std::string exitNodeCode = exitNodeIt->code;
 
-    // È­Àç ¹ß»ı ÃÊ±âÈ­
+    // í™”ì¬ ë°œìƒ ì´ˆê¸°í™”
     std::unordered_set<std::string> fireNodes;
     fireNodes.insert(nodes[std::rand() % nodes.size()].code);
 
     std::vector<std::string> path;
     switch (3) {
     case 1:
-        // ´ÙÀÌÀÍ½ºÆ®¶ó ¾Ë°í¸®ÁòÀ¸·Î °æ·Î Ã£±â
+        // ë‹¤ì´ìµìŠ¤íŠ¸ë¼ ì•Œê³ ë¦¬ì¦˜ìœ¼ë¡œ ê²½ë¡œ ì°¾ê¸°
         path = dijkstra(nodes, playerNodeCode, exitNodeCode, fireNodes);
         break;
     case 2:
-        // bellman-Ford ¾Ë°í¸®ÁòÀ¸·Î °æ·Î Ã£±â
+        // bellman-Ford ì•Œê³ ë¦¬ì¦˜ìœ¼ë¡œ ê²½ë¡œ ì°¾ê¸°
         path = bellmanFord(nodes, playerNodeCode, exitNodeCode, fireNodes);
         break;
     case 3:
-        // ÇÃ·ÎÀÌµå ¿ö¼È ¾Ë°í¸®ÁòÀ¸·Î °æ·Î Ã£±â
+        // í”Œë¡œì´ë“œ ì›Œì…œ ì•Œê³ ë¦¬ì¦˜ìœ¼ë¡œ ê²½ë¡œ ì°¾ê¸°
         path = floydWarshall(nodes, playerNodeCode, exitNodeCode, fireNodes);
+        break;
+    case 4:
+        // A* ì•Œê³ ë¦¬ì¦˜ìœ¼ë¡œ ê²½ë¡œ ì°¾ê¸°
+        path = astar(nodes, playerNodeCode, exitNodeCode, fireNodes);
         break;
     }
 
-    // °æ·Î°¡ ¾ø´Â °æ¿ì Ã³¸®
+    // ê²½ë¡œê°€ ì—†ëŠ” ê²½ìš° ì²˜ë¦¬
     if (path.empty()) {
         std::cout << "Initial path is blocked by fire. Exiting game." << std::endl;
         return 1;
     }
 
-    // ÃÖ¼Ò ¹× ÃÖ´ë °¡ÁßÄ¡ Ã£±â
+    // ìµœì†Œ ë° ìµœëŒ€ ê°€ì¤‘ì¹˜ ì°¾ê¸°
     double minWeight = std::numeric_limits<double>::max();
     double maxWeight = std::numeric_limits<double>::lowest();
     for (const auto& node : nodes) {
@@ -365,7 +448,7 @@ int main() {
         }
     }
 
-    // ³ëµå¿Í °£¼± ½Ã°¢È­ ÁØºñ
+    // ë…¸ë“œì™€ ê°„ì„  ì‹œê°í™” ì¤€ë¹„
     std::vector<sf::CircleShape> nodeShapes;
     std::vector<sf::VertexArray> edgesShapes;
     std::unordered_map<std::string, sf::CircleShape> nodeMap;
@@ -374,20 +457,20 @@ int main() {
     for (const auto& node : nodes) {
         sf::CircleShape shape(5);
         if (node.centralNode == "O") {
-            shape.setFillColor(sf::Color::Green); // centralNode °ªÀÌ "O"ÀÏ ¶§ ÃÊ·Ï»öÀ¸·Î ¼³Á¤
+            shape.setFillColor(sf::Color::Green); // centralNode ê°’ì´ "O"ì¼ ë•Œ ì´ˆë¡ìƒ‰ìœ¼ë¡œ ì„¤ì •
         }
         else {
-            shape.setFillColor(sf::Color::Yellow); // ±× ¿Ü¿¡´Â ³ë¶õ»öÀ¸·Î ¼³Á¤
+            shape.setFillColor(sf::Color::Yellow); // ê·¸ ì™¸ì—ëŠ” ë…¸ë€ìƒ‰ìœ¼ë¡œ ì„¤ì •
         }
-        shape.setPosition(node.longitude * 760 + 10, (1.0 - node.latitude) * 560 + 10); // YÃà ¹İÀü ¹× ¿©¹é Ãß°¡
+        shape.setPosition(node.longitude * 760 + 10, (1.0 - node.latitude) * 560 + 10); // Yì¶• ë°˜ì „ ë° ì—¬ë°± ì¶”ê°€
         if (node.code == playerNodeCode) {
-            shape.setFillColor(sf::Color::Red); // ÇÃ·¹ÀÌ¾î À§Ä¡´Â »¡°£»öÀ¸·Î ¼³Á¤
+            shape.setFillColor(sf::Color::Red); // í”Œë ˆì´ì–´ ìœ„ì¹˜ëŠ” ë¹¨ê°„ìƒ‰ìœ¼ë¡œ ì„¤ì •
         }
         if (node.code == exitNodeCode) {
-            shape.setFillColor(sf::Color::Blue); // Ãâ±¸ À§Ä¡´Â ÆÄ¶õ»öÀ¸·Î ¼³Á¤
+            shape.setFillColor(sf::Color::Blue); // ì¶œêµ¬ ìœ„ì¹˜ëŠ” íŒŒë€ìƒ‰ìœ¼ë¡œ ì„¤ì •
         }
         if (fireNodes.find(node.code) != fireNodes.end()) {
-            shape.setFillColor(sf::Color::Magenta); // È­Àç ¹ß»ı ³ëµå´Â ¸¶Á¨Å¸ »öÀ¸·Î ¼³Á¤
+            shape.setFillColor(sf::Color::Magenta); // í™”ì¬ ë°œìƒ ë…¸ë“œëŠ” ë§ˆì  íƒ€ ìƒ‰ìœ¼ë¡œ ì„¤ì •
         }
         nodeShapes.push_back(shape);
         nodeMap[node.code] = shape;
@@ -413,7 +496,7 @@ int main() {
         }
     }
 
-    // °æ·Î °£¼± ½Ã°¢È­ ÁØºñ
+    // ê²½ë¡œ ê°„ì„  ì‹œê°í™” ì¤€ë¹„
     for (size_t i = 1; i < path.size(); ++i) {
         sf::VertexArray line(sf::Lines, 2);
         const auto& startNode = nodeMap[path[i - 1]];
@@ -427,7 +510,7 @@ int main() {
         pathEdgesShapes.push_back(line);
     }
 
-    // °æ·Î¸¦ µû¶ó ÀÌµ¿ÇÏ´Â ÇÃ·¹ÀÌ¾îÀÇ ÃÊ±â À§Ä¡ ¼³Á¤
+    // ê²½ë¡œë¥¼ ë”°ë¼ ì´ë™í•˜ëŠ” í”Œë ˆì´ì–´ì˜ ì´ˆê¸° ìœ„ì¹˜ ì„¤ì •
     sf::CircleShape playerShape(5);
     playerShape.setFillColor(sf::Color::Red);
     playerShape.setPosition(nodeMap[path[0]].getPosition());
@@ -436,9 +519,9 @@ int main() {
     sf::Clock fireClock;
     size_t currentPathIndex = 0;
     double interpolation = 0.0;
-    const double maxTravelTime = 5.0; // °£¼± ÀÌµ¿ÀÇ ÃÖ´ë ½Ã°£
+    const double maxTravelTime = 5.0; // ê°„ì„  ì´ë™ì˜ ìµœëŒ€ ì‹œê°„
 
-    double totalWeight = 0.0; // Áö³ª¿Â °¡ÁßÄ¡ÀÇ ÇÕ °è»ê
+    double totalWeight = 0.0; // ì§€ë‚˜ì˜¨ ê°€ì¤‘ì¹˜ì˜ í•© ê³„ì‚°
 
     std::vector<Fire> fireAnimations;
     std::unordered_set<std::string> passedNodes;
@@ -450,7 +533,7 @@ int main() {
                 window.close();
         }
 
-        // È­Àç°¡ ÆÛÁö´Â Ã³¸®
+        // í™”ì¬ê°€ í¼ì§€ëŠ” ì²˜ë¦¬
         if (fireClock.getElapsedTime().asSeconds() > 0.8 * maxTravelTime) {
             fireClock.restart();
             std::unordered_set<std::string> newFireNodes;
@@ -475,7 +558,7 @@ int main() {
                 fireNodes.insert(newFireNode);
             }
 
-            // È­Àç°¡ ÇöÀç °æ·Î¸¦ Â÷´ÜÇÏ´ÂÁö È®ÀÎ
+            // í™”ì¬ê°€ í˜„ì¬ ê²½ë¡œë¥¼ ì°¨ë‹¨í•˜ëŠ”ì§€ í™•ì¸
             bool pathBlocked = false;
             for (const auto& node : path) {
                 if (fireNodes.find(node) != fireNodes.end() && passedNodes.find(node) == passedNodes.end()) {
@@ -484,7 +567,7 @@ int main() {
                 }
             }
 
-            // °æ·Î Àç°è»ê
+            // ê²½ë¡œ ì¬ê³„ì‚°
             if (pathBlocked) {
                 std::vector<std::string> newPath = dijkstra(nodes, path[currentPathIndex], exitNodeCode, fireNodes);
                 if (newPath.empty()) {
@@ -492,7 +575,7 @@ int main() {
                     window.close();
                 }
                 else {
-                    resetPathEdgesColors(path, nodeMap, pathEdgesShapes, sf::Color::White); // ±âÁ¸ °æ·Î »ö»ó µÇµ¹¸®±â
+                    resetPathEdgesColors(path, nodeMap, pathEdgesShapes, sf::Color::White); // ê¸°ì¡´ ê²½ë¡œ ìƒ‰ìƒ ë˜ëŒë¦¬ê¸°
                     path = newPath;
                     pathEdgesShapes.clear();
                     for (size_t i = 1; i < path.size(); ++i) {
@@ -513,7 +596,7 @@ int main() {
             }
         }
 
-        // ÀÌµ¿ ½Ã°£ °è»ê
+        // ì´ë™ ì‹œê°„ ê³„ì‚°
         sf::Time elapsed = clock.restart();
         double travelTime = getWeight(path[currentPathIndex], path[currentPathIndex + 1], nodes);
         double normalizedTime = normalizeWeight(travelTime, minWeight, maxWeight);
@@ -521,14 +604,14 @@ int main() {
 
         if (interpolation >= 1.0) {
             interpolation = 0.0;
-            totalWeight += travelTime; // ÀÌµ¿ ¿Ï·áµÈ °æ·ÎÀÇ °¡ÁßÄ¡¸¦ ÇÕ»ê
-            passedNodes.insert(path[currentPathIndex]); // Áö³ª°£ ³ëµå¸¦ Ãß°¡
+            totalWeight += travelTime; // ì´ë™ ì™„ë£Œëœ ê²½ë¡œì˜ ê°€ì¤‘ì¹˜ë¥¼ í•©ì‚°
+            passedNodes.insert(path[currentPathIndex]); // ì§€ë‚˜ê°„ ë…¸ë“œë¥¼ ì¶”ê°€
             currentPathIndex++;
             if (currentPathIndex + 1 >= path.size()) {
                 playerShape.setPosition(nodeMap[exitNodeCode].getPosition());
                 std::cout << "Player reached the exit!" << std::endl;
 
-                // °æ°ú ½Ã°£ °è»ê
+                // ê²½ê³¼ ì‹œê°„ ê³„ì‚°
                 auto gameEndTime = std::chrono::high_resolution_clock::now();
                 std::chrono::duration<double> gameDuration = gameEndTime - gameStartTime;
 
@@ -538,7 +621,7 @@ int main() {
                 window.close();
             }
             else {
-                // ÇÃ·¹ÀÌ¾î°¡ Áö³ª°£ ³ëµå¿Í °£¼±À» »¡°£»öÀ¸·Î º¯°æ
+                // í”Œë ˆì´ì–´ê°€ ì§€ë‚˜ê°„ ë…¸ë“œì™€ ê°„ì„ ì„ ë¹¨ê°„ìƒ‰ìœ¼ë¡œ ë³€ê²½
                 nodeMap[path[currentPathIndex]].setFillColor(sf::Color::Red);
                 playerShape.setPosition(nodeMap[path[currentPathIndex]].getPosition());
             }
@@ -548,7 +631,7 @@ int main() {
             sf::Vector2f endPos = nodeMap[path[currentPathIndex + 1]].getPosition();
             sf::Vector2f delta = endPos - startPos;
 
-            // °¢ ¿ä¼Òº° °ö¼ÀÀ» ¼öµ¿À¸·Î °è»ê
+            // ê° ìš”ì†Œë³„ ê³±ì…ˆì„ ìˆ˜ë™ìœ¼ë¡œ ê³„ì‚°
             sf::Vector2f interpolatedPos(
                 startPos.x + interpolation * delta.x,
                 startPos.y + interpolation * delta.y
@@ -557,7 +640,7 @@ int main() {
             playerShape.setPosition(interpolatedPos);
         }
 
-        // È­Àç ¾Ö´Ï¸ŞÀÌ¼Ç ¾÷µ¥ÀÌÆ®
+        // í™”ì¬ ì• ë‹ˆë©”ì´ì…˜ ì—…ë°ì´íŠ¸
         for (auto& fire : fireAnimations) {
             double fireTravelTime = getWeight(fire.startNode, fire.endNode, nodes) * 0.8;
             double fireNormalizedTime = normalizeWeight(fireTravelTime, minWeight, maxWeight);
@@ -582,25 +665,25 @@ int main() {
 
         window.clear();
 
-        // ¸ğµç °£¼± ±×¸®±â
+        // ëª¨ë“  ê°„ì„  ê·¸ë¦¬ê¸°
         for (const auto& edge : edgesShapes) {
             window.draw(edge);
         }
 
-        // °æ·Î °£¼± ±×¸®±â
+        // ê²½ë¡œ ê°„ì„  ê·¸ë¦¬ê¸°
         for (const auto& edge : pathEdgesShapes) {
             window.draw(edge);
         }
 
-        // ¸ğµç ³ëµå ±×¸®±â
+        // ëª¨ë“  ë…¸ë“œ ê·¸ë¦¬ê¸°
         for (const auto& shape : nodeShapes) {
             window.draw(shape);
         }
 
-        // ÇÃ·¹ÀÌ¾î ±×¸®±â
+        // í”Œë ˆì´ì–´ ê·¸ë¦¬ê¸°
         window.draw(playerShape);
 
-        // È­Àç ¾Ö´Ï¸ŞÀÌ¼Ç ±×¸®±â
+        // í™”ì¬ ì• ë‹ˆë©”ì´ì…˜ ê·¸ë¦¬ê¸°
         for (const auto& fire : fireAnimations) {
             window.draw(fire.shape);
         }
