@@ -1,43 +1,43 @@
 ﻿  main.cpp
-D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(203,11): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(382,82): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(382,48): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(405,100): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(207,11): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(471,82): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(471,48): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(494,100): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
           with
           [
               T=float
           ]
-D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(405,66): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(494,66): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
           with
           [
               T=float
           ]
-D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(409,108): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(498,108): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
           with
           [
               T=float
           ]
-D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(409,70): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(498,70): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
           with
           [
               T=float
           ]
-D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(554,28): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(643,28): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
           with
           [
               T=float
           ]
-D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(553,28): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(642,28): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
           with
           [
               T=float
           ]
-D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(577,32): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(666,32): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
           with
           [
               T=float
           ]
-D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(576,32): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+D:\3_1\algorithm\project\github_test\Algorithm-Project\test\main.cpp(665,32): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
           with
           [
               T=float

@@ -108,12 +108,15 @@ std::vector<std::string> dijkstra(const std::vector<Node>& nodes, const std::str
     std::unordered_map<std::string, double> distances;
     std::unordered_map<std::string, std::string> previous;
     auto cmp = [&distances](const std::string& left, const std::string& right) { return distances[left] > distances[right]; };
+    //우선순위 큐 선언
     std::priority_queue<std::string, std::vector<std::string>, decltype(cmp)> queue(cmp);
 
+    //모든 노드와의 거리를 무한으로 초기화
     for (const auto& node : nodes) {
         distances[node.code] = std::numeric_limits<double>::infinity();
         previous[node.code] = "";
     }
+    //시작노드의 거리를 0으로 설정 후 우선순위 큐에 삽입
     distances[startCode] = 0;
     queue.push(startCode);
 
@@ -145,6 +148,7 @@ std::vector<std::string> dijkstra(const std::vector<Node>& nodes, const std::str
         }
     }
 
+    //목표 노드부터 시작 노드까지 previous 맵을 사용하여 경로를 추적한다. 이후, 추적한 경로를 뒤집어서 최단 경로로 반환한다.
     std::vector<std::string> path;
     if (distances[exitCode] == std::numeric_limits<double>::infinity()) {
         return {}; // 경로가 없는 경우 빈 벡터 반환
@@ -256,6 +260,82 @@ std::vector<std::string> floydWarshall(const std::vector<Node>& nodes, const std
     return path;
 }
 
+// A* 알고리즘에 사용할 휴리스틱 함
+// 두 노드 간의 유클리드 거리를 계산하여 반환
+double heuristic(const Node& a, const Node& b) {
+    return std::sqrt((a.latitude - b.latitude) * (a.latitude - b.latitude) +
+        (a.longitude - b.longitude) * (a.longitude - b.longitude));
+}
+
+//A* 알고리즘을 이용하여 최단 경로를 찾는 함수
+std::vector<std::string> astar(const std::vector<Node>& nodes, const std::string& startCode, const std::string& exitCode, const std::unordered_set<std::string>& fireNodes) {
+    std::unordered_map<std::string, double> gScore, /*시작 노드에서 특정 노드까지의 실제 비용*/ fScore; // 시작 노드에서 목표 노드까지의 예상 비용 (gScore + 휴리스틱)
+    std::unordered_map<std::string, std::string> cameFrom; // 각 노드의 이전 노드를 저장하여 경로를 재구성
+    // 우선순위 큐를 사용하여 fScore가 낮은 노드를 우선 탐색
+    auto cmp = [&fScore](const std::string& left, const std::string& right) { return fScore[left] > fScore[right]; };
+    std::priority_queue<std::string, std::vector<std::string>, decltype(cmp)> openSet(cmp);
+
+    //초기화: 모든 노드의 gScore와 fScore를 무한대로 설정
+    for (const auto& node : nodes) {
+        gScore[node.code] = std::numeric_limits<double>::infinity();
+        fScore[node.code] = std::numeric_limits<double>::infinity();
+    }
+    gScore[startCode] = 0.0; // 시작 노드의 gScore는 0
+    fScore[startCode] = heuristic(nodes[0], nodes[0]); // 초기 휴리스틱 값 설정 (자기 자신과의 거리이므로 0)
+
+    openSet.push(startCode); // 시작 노드를 우선순위 큐에 추가
+
+    while (!openSet.empty()) {
+        std::string current = openSet.top(); // fScore가 가장 낮은 노드를 선택
+        openSet.pop();
+
+        if (current == exitCode) { // 목표 노드에 도달한 경우 경로를 재구성하여 반환
+            std::vector<std::string> path;
+            for (std::string at = exitCode; !at.empty(); at = cameFrom[at]) {
+                path.push_back(at);
+            }
+            std::reverse(path.begin(), path.end()); // 경로를 역순으로 저장했으므로 순서를 반대로 변경
+            return path;
+        }
+
+        const Node* currentNode = nullptr; // 현재 노드를 찾음
+        for (const auto& node : nodes) {
+            if (node.code == current) {
+                currentNode = &node;
+                break;
+            }
+        }
+        if (!currentNode) continue;
+
+        //현재 노드의 모든 인접 노드를 탐색
+        for (const auto& neighbor : currentNode->nearNodes) {
+            if (fireNodes.find(neighbor.first) != fireNodes.end()) {
+                continue; //화재가 발생한 노드는 탐색하지 않음
+            }
+            double tentative_gScore = gScore[current] + neighbor.second; // 새로운 gScore 계산
+            if (tentative_gScore < gScore[neighbor.first]) { // 더 낮은 gScore를 발견한 경우 갱신
+                cameFrom[neighbor.first] = current; // 경로를 재구성하기 위해 이전 노드 저장
+                gScore[neighbor.first] = tentative_gScore;
+
+                const Node* neighborNode = nullptr;
+                //인접 노드를 찾음
+                for (const auto& node : nodes) {
+                    if (node.code == neighbor.first) {
+                        neighborNode = &node;
+                        break;
+                    }
+                }
+                if (neighborNode) { // fScore 갱신: gScore + 휴리스틱
+                    fScore[neighbor.first] = gScore[neighbor.first] + heuristic(*neighborNode, *currentNode);
+                    openSet.push(neighbor.first); // 인접 노드를 우선순위 큐에 추가ㅏ
+                }
+            }
+        }
+    }
+
+    return {}; //목표 노드에 도달할 수 없는 경우 빈 벡터 반환
+}
+
 // 가중치를 정규화하는 함수
 double normalizeWeight(double weight, double minWeight, double maxWeight) {
     return 0.5 + 4.5 * (weight - minWeight) / (maxWeight - minWeight);
@@ -318,6 +398,12 @@ int main() {
 
     normalizeNodes(nodes);
 
+    std::srand(static_cast<unsigned int>(std::time(nullptr)));
+
+    // 플레이어와 출구의 임의 위치 설정
+    /*std::string playerNodeCode = nodes[std::rand() % nodes.size()].code;
+    std::string exitNodeCode = nodes[std::rand() % nodes.size()].code;*/
+
     // 플레이어와 출구의 위치를 고정
     auto playerNodeIt = std::min_element(nodes.begin(), nodes.end(), [](const Node& a, const Node& b) {
         return a.longitude < b.longitude;
@@ -325,7 +411,6 @@ int main() {
     auto exitNodeIt = std::max_element(nodes.begin(), nodes.end(), [](const Node& a, const Node& b) {
         return a.longitude < b.longitude;
     });
-
     std::string playerNodeCode = playerNodeIt->code;
     std::string exitNodeCode = exitNodeIt->code;
 
@@ -334,7 +419,7 @@ int main() {
     fireNodes.insert(nodes[std::rand() % nodes.size()].code);
 
     std::vector<std::string> path;
-    switch (3) {
+    switch (4) {
     case 1:
         // 다이익스트라 알고리즘으로 경로 찾기
         path = dijkstra(nodes, playerNodeCode, exitNodeCode, fireNodes);
@@ -346,6 +431,10 @@ int main() {
     case 3:
         // 플로이드 워셜 알고리즘으로 경로 찾기
         path = floydWarshall(nodes, playerNodeCode, exitNodeCode, fireNodes);
+        break;
+    case 4:
+        // A* 알고리즘으로 경로 찾기
+        path = astar(nodes, playerNodeCode, exitNodeCode, fireNodes);
         break;
     }
 
