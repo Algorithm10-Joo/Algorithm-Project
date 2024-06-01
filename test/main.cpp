@@ -540,7 +540,7 @@ int main() {
         }
 
         // 화재가 퍼지는 처리
-        if (fireClock.getElapsedTime().asSeconds() > 0.8 * maxTravelTime) {
+        if (fireClock.getElapsedTime().asSeconds() > 1.0 * maxTravelTime) {
             fireClock.restart();
             std::unordered_set<std::string> newFireNodes;
             for (const auto& fireNode : fireNodes) {
@@ -648,7 +648,7 @@ int main() {
 
         // 화재 애니메이션 업데이트
         for (auto& fire : fireAnimations) {
-            double fireTravelTime = getWeight(fire.startNode, fire.endNode, nodes) * 0.8;
+            double fireTravelTime = getWeight(fire.startNode, fire.endNode, nodes) * 1.0;
             double fireNormalizedTime = normalizeWeight(fireTravelTime, minWeight, maxWeight);
             fire.interpolation += elapsed.asSeconds() / fireNormalizedTime;
 
