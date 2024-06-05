@@ -26,6 +26,7 @@ public:
         std::vector<std::pair<std::string, double>> nn)
         : code(c), centralNode(cn), latitude(lat), longitude(lon), nearNodes(nn) {}
 
+    //csv 파일을 제대로 읽는지 테스트
     void display() const {
         std::cout << "Code: " << code << "\n";
         std::cout << "Central Node: " << centralNode << "\n";
@@ -336,9 +337,9 @@ std::vector<std::string> astar(const std::vector<Node>& nodes, const std::string
     return {}; //목표 노드에 도달할 수 없는 경우 빈 벡터 반환
 }
 
-// 가중치를 정규화하는 함수
-double normalizeWeight(double weight, double minWeight, double maxWeight) {
-    return 0.5 + 4.5 * (weight - minWeight) / (maxWeight - minWeight);
+// 가중치를 정규화하는 함수(최소 minTravelTime, 최대 maxTravelTime)
+double normalizeWeight(double weight, double minWeight, double maxWeight, const double minTravelTime, const double maxTravelTime) {
+    return minTravelTime + (maxTravelTime - minTravelTime) * (weight - minWeight) / (maxWeight - minWeight);
 }
 
 // 화재 애니메이션을 위한 구조체
@@ -476,12 +477,12 @@ int main() {
             shape.setFillColor(sf::Color::Blue); // 출구 위치는 파란색으로 설정
         }
         if (fireNodes.find(node.code) != fireNodes.end()) {
-            shape.setFillColor(sf::Color::Magenta); // 화재 발생 노드는 마젠타 색으로 설정
+            shape.setFillColor(sf::Color::Magenta); // 화재 발생 노드는 자홍색으로 설정
         }
         nodeShapes.push_back(shape);
         nodeMap[node.code] = shape;
 
-        for (const auto& edge : node.nearNodes) {
+        for (const auto& edge : node.nearNodes) { 
             auto it = std::find_if(nodes.begin(), nodes.end(), [&edge](const Node& n) {
                 return n.code == edge.first;
             });
@@ -502,7 +503,7 @@ int main() {
         }
     }
 
-    // 경로 간선 시각화 준비
+    //최적 경로 간선 시각화 준비
     for (size_t i = 1; i < path.size(); ++i) {
         sf::VertexArray line(sf::Lines, 2);
         const auto& startNode = nodeMap[path[i - 1]];
@@ -525,7 +526,8 @@ int main() {
     sf::Clock fireClock;
     size_t currentPathIndex = 0;
     double interpolation = 0.0;
-    const double maxTravelTime = 5.0; // 간선 이동의 최대 시간
+    const double minTravelTime = 0.3; // 간선 이동의 최소 시간
+    const double maxTravelTime = 3.0; // 간선 이동의 최대 시간
 
     double totalWeight = 0.0; // 지나온 가중치의 합 계산
 
@@ -539,11 +541,14 @@ int main() {
                 window.close();
         }
 
-        // 화재가 퍼지는 처리
+        // 화재가 퍼지는 과정 처리(현재, 사용자가 최대 가중치 경로를 이동할 때의 시간마다 확산된다)
         if (fireClock.getElapsedTime().asSeconds() > 1.0 * maxTravelTime) {
             fireClock.restart();
             std::unordered_set<std::string> newFireNodes;
+
+            //모든 화재 노드에 대해서,
             for (const auto& fireNode : fireNodes) {
+                //화재 노드 주위의 모든 노드에 대해 확산
                 for (const auto& node : nodes) {
                     if (node.code == fireNode) {
                         for (const auto& neighbor : node.nearNodes) {
@@ -560,6 +565,7 @@ int main() {
                     }
                 }
             }
+            //확산된 화재 노드를 저장
             for (const auto& newFireNode : newFireNodes) {
                 fireNodes.insert(newFireNode);
             }
@@ -580,8 +586,9 @@ int main() {
                     std::cout << "Game Over: All paths to the exit are blocked by fire." << std::endl;
                     window.close();
                 }
+                //경로 색상 초기화 후, 현재 경로에서부터 목적지까지 최적 경로를 다시 red 색깔로 칠한다
                 else {
-                    resetPathEdgesColors(path, nodeMap, pathEdgesShapes, sf::Color::White); // 기존 경로 색상 되돌리기
+                    resetPathEdgesColors(path, nodeMap, pathEdgesShapes, sf::Color::White);
                     path = newPath;
                     pathEdgesShapes.clear();
                     for (size_t i = 1; i < path.size(); ++i) {
@@ -603,71 +610,69 @@ int main() {
         }
 
         // 이동 시간 계산
-        sf::Time elapsed = clock.restart();
-        double travelTime = getWeight(path[currentPathIndex], path[currentPathIndex + 1], nodes);
-        double normalizedTime = normalizeWeight(travelTime, minWeight, maxWeight);
-        interpolation += elapsed.asSeconds() / normalizedTime;
+        sf::Time elapsed = clock.restart(); // 이전 프레임의 시간 간격을 측정하고, clock을 다시 시작
+        double travelTime = getWeight(path[currentPathIndex], path[currentPathIndex + 1], nodes); // 현재 노드에서 다음 노드까지의 가중치를 계산
+        double normalizedTime = normalizeWeight(travelTime, minWeight, maxWeight, minTravelTime, maxTravelTime); // 가중치를 정규화하여 이동 시간을 계산
+        interpolation += elapsed.asSeconds() / normalizedTime; // 경과된 시간을 정규화된 이동 시간으로 나누어 보간 비율을 계산
 
-        if (interpolation >= 1.0) {
-            interpolation = 0.0;
+        if (interpolation >= 1.0) { // 보간 비율이 1.0 이상이면 다음 노드로 이동 완료된 것
+            interpolation = 0.0; // 보간 비율을 초기화
             totalWeight += travelTime; // 이동 완료된 경로의 가중치를 합산
-            passedNodes.insert(path[currentPathIndex]); // 지나간 노드를 추가
-            currentPathIndex++;
-            if (currentPathIndex + 1 >= path.size()) {
-                playerShape.setPosition(nodeMap[exitNodeCode].getPosition());
+            passedNodes.insert(path[currentPathIndex]); // 지나간 노드를 추가하여 기록
+            currentPathIndex++; // 다음 노드로 인덱스를 증가
+            if (currentPathIndex + 1 >= path.size()) { // 경로의 끝에 도달한 경우
+                playerShape.setPosition(nodeMap[exitNodeCode].getPosition()); // 플레이어의 위치를 출구 노드로 설정
                 std::cout << "Player reached the exit!" << std::endl;
 
                 // 경과 시간 계산
-                auto gameEndTime = std::chrono::high_resolution_clock::now();
-                std::chrono::duration<double> gameDuration = gameEndTime - gameStartTime;
+                auto gameEndTime = std::chrono::high_resolution_clock::now(); // 게임 종료 시간을 기록
+                std::chrono::duration<double> gameDuration = gameEndTime - gameStartTime; // 게임 시작 시간부터 종료 시간까지의 경과 시간을 계산
 
                 std::cout << "Total time taken: " << gameDuration.count() << " seconds" << std::endl;
                 std::cout << "Total weight of the path: " << totalWeight << std::endl;
 
-                window.close();
-            }
-            else {
-                // 플레이어가 지나간 노드와 간선을 빨간색으로 변경
-                nodeMap[path[currentPathIndex]].setFillColor(sf::Color::Red);
-                playerShape.setPosition(nodeMap[path[currentPathIndex]].getPosition());
+                window.close(); // 게임 창을 닫습니다.
             }
         }
-        else {
-            sf::Vector2f startPos = nodeMap[path[currentPathIndex]].getPosition();
-            sf::Vector2f endPos = nodeMap[path[currentPathIndex + 1]].getPosition();
-            sf::Vector2f delta = endPos - startPos;
+        else { // 아직 다음 노드에 도달하지 않은 경우
+            sf::Vector2f startPos = nodeMap[path[currentPathIndex]].getPosition(); // 현재 노드의 위치를 가져온다
+            sf::Vector2f endPos = nodeMap[path[currentPathIndex + 1]].getPosition(); // 다음 노드의 위치를 가져온다
+            sf::Vector2f delta = endPos - startPos; // 현재 노드와 다음 노드 간의 위치 차이를 계산
 
-            // 각 요소별 곱셈을 수동으로 계산
+            // 각 요소별 곱셈을 수동으로 계산하여 보간된 위치를 설정
             sf::Vector2f interpolatedPos(
-                startPos.x + interpolation * delta.x,
-                startPos.y + interpolation * delta.y
+                startPos.x + interpolation * delta.x, // X 좌표 보간 계산
+                startPos.y + interpolation * delta.y // Y 좌표 보간 계산
             );
 
-            playerShape.setPosition(interpolatedPos);
+            playerShape.setPosition(interpolatedPos); // 플레이어의 위치를 보간된 위치로 설정
         }
+
 
         // 화재 애니메이션 업데이트
         for (auto& fire : fireAnimations) {
-            double fireTravelTime = getWeight(fire.startNode, fire.endNode, nodes) * 1.0;
-            double fireNormalizedTime = normalizeWeight(fireTravelTime, minWeight, maxWeight);
-            fire.interpolation += elapsed.asSeconds() / fireNormalizedTime;
+            double fireTravelTime = getWeight(fire.startNode, fire.endNode, nodes) * 1.0; // 화재가 시작 노드에서 끝 노드로 이동하는 데 걸리는 시간을 가중치로 계산
+            double fireNormalizedTime = normalizeWeight(fireTravelTime, minWeight, maxWeight, minTravelTime, maxTravelTime); // 가중치를 정규화하여 이동 시간을 계산
+            fire.interpolation += elapsed.asSeconds() / fireNormalizedTime; // 경과된 시간을 정규화된 이동 시간으로 나누어 보간 비율을 계산
 
-            if (fire.interpolation >= 1.0) {
-                fire.interpolation = 1.0;
-                nodeMap[fire.endNode].setFillColor(sf::Color::Magenta);
+            if (fire.interpolation >= 1.0) { // 보간 비율이 1.0 이상이면 화재가 끝 노드에 도달했음을 의미
+                fire.interpolation = 1.0; // 보간 비율을 1.0으로 설정하여 끝 노드에 정확히 도달하도록 한다
+                nodeMap[fire.endNode].setFillColor(sf::Color::Magenta); // 끝 노드를 자홍색으로 설정하여 화재가 발생했음을 표시
             }
 
-            sf::Vector2f fireStartPos = nodeMap[fire.startNode].getPosition();
-            sf::Vector2f fireEndPos = nodeMap[fire.endNode].getPosition();
-            sf::Vector2f fireDelta = fireEndPos - fireStartPos;
+            sf::Vector2f fireStartPos = nodeMap[fire.startNode].getPosition(); // 시작 노드의 위치를 가져온다
+            sf::Vector2f fireEndPos = nodeMap[fire.endNode].getPosition(); // 끝 노드의 위치를 가져온다
+            sf::Vector2f fireDelta = fireEndPos - fireStartPos; // 시작 노드와 끝 노드 간의 위치 차이를 계산
 
+            // 각 요소별 곱셈을 수동으로 계산하여 보간된 위치를 설정.
             sf::Vector2f fireInterpolatedPos(
-                fireStartPos.x + fire.interpolation * fireDelta.x,
-                fireStartPos.y + fire.interpolation * fireDelta.y
+                fireStartPos.x + fire.interpolation * fireDelta.x, // X 좌표 보간 계산
+                fireStartPos.y + fire.interpolation * fireDelta.y // Y 좌표 보간 계산
             );
 
-            fire.shape.setPosition(fireInterpolatedPos);
+            fire.shape.setPosition(fireInterpolatedPos); // 화재 애니메이션의 위치를 보간된 위치로 설정.
         }
+
 
         window.clear();
 
